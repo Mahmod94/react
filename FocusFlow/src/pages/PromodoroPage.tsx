@@ -1,14 +1,27 @@
 import { useEffect, useRef, useState } from "react";
+import type { Session } from "../types/session";
 
-const FOCUS_SECONDS = 25 * 60;
+const PROMODORO_LENGTH = 10;
+
+const STORAGE_KEY = "focusflow.sessions";
 
 export default function PromodoroPage()
 {
-    const [secondsLeft, setSecondsLeft] = useState<number>(FOCUS_SECONDS);
-    const [isRunning, setIsRunning] = useState<boolean>(false);
+    const [timeLeft, setTimeLeft] = useState<number>(PROMODORO_LENGTH);
+    const [running, setIsRunning] = useState<boolean>(false);
 
-    // Sparar intervall-id mellan renders utan att trigga rerender
-    const intervalRef = useRef<number | null>(null);
+    const [sessions, setSession] = useState<Session[]>(() => {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            console.log("LOADED RAW:", raw);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? (parsed as Session []) : [];
+        } catch (err) {
+            console.error("Failed to load sessions:", err);
+            return [];
+        }
+    });
 
     // Hjälpfunktion för mm:ss
     const formatTime = (totalSeconds: number) => {
@@ -19,62 +32,77 @@ export default function PromodoroPage()
 
 
     useEffect(() => {
-        // Om vi inte kör: se till att inget intervall lever kvar
-        if (!isRunning) {
-            if (intervalRef.current !== null){
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-            return;
-        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+        console.log("SAVED", sessions);
+    }, [sessions]);
 
-        // Starta intervall när isRunning blir true
-        intervalRef.current = window.setInterval(() => {
-            setSecondsLeft((prev) => {
-                if (prev <= 1) {
-                    // När tiden tar slut: stoppa
-                    setIsRunning(false);
-                    return 0;
-                }
-                return prev - 1;
-        });
-    }, 1000);
+    useEffect(() => {
+        if(!running) return;
 
-    // Cleanup när isRunning ändras eller komponenten unmountas
-    return () => {
-        if (intervalRef.current != null){
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
+        const id = window.setInterval(() => {
+            setTimeLeft(prev => Math.max(prev - 1, 0));
+        }, 1000);
+
+        return () => clearInterval(id);
+    }, [running]);
+
+    const loggedRef = useRef(false);
+
+    useEffect(() => {
+        if (!running) return;
+
+        if (timeLeft === 0 && !loggedRef.current){
+            loggedRef.current = true;
+
+            setIsRunning(false);
+            setSession(prev => [
+                ...prev,
+                {
+                    id: Date.now(),
+                    durationSeconds: PROMODORO_LENGTH,
+                    endedAt: Date.now(),
+                    type: "focus",
+                },
+            ]);
         }
+    }, [timeLeft, running])
+
+
+    const handleStartPause = () => {
+        if (!running) loggedRef.current = false;
+        setIsRunning(p => !p);
     };
-}, [isRunning]);
 
+    const handleReset = () => {
+        setIsRunning(false);
+        setTimeLeft(PROMODORO_LENGTH);
+        loggedRef.current= false;
+    };
+    return (
+        <div>
+            <h1>Promodoro</h1>
 
-const handleStartPause = () => setIsRunning((p) => !p);
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+                {formatTime(timeLeft)}
+            </div>
 
-const handleReset = () => {
-    setIsRunning(false);
-    setSecondsLeft(FOCUS_SECONDS);
-};
+            <button onClick={handleStartPause}>
+                {running ? "Pause" : "Start"}
+            </button>
 
-return (
-    <div>
-        <h1>Promodoro</h1>
-
-        <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>
-            {formatTime(secondsLeft)}
+            <button onClick={handleReset} style={{ marginLeft: "0.5rem" }}>
+                Reset
+            </button>
+        <ul>
+            {sessions.map((s)=>(
+                <li key={s.id}>
+                    {s.type} — {formatTime(s.durationSeconds)} —{" "}
+                    {new Date(s.endedAt).toLocaleString()}
+                </li>
+            ))}
+        </ul>
         </div>
-
-        <button onClick={handleStartPause}>
-            {isRunning ? "Pause" : "Start"}
-        </button>
-
-        <button onClick={handleReset} style={{ marginLeft: "0.5rem" }}>
-            Reset
-        </button>
-
-    </div>
-);
+    );
 
 }
 
