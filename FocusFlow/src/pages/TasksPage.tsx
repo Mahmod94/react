@@ -28,12 +28,12 @@ export default function TasksPage() {
     const title = name.trim();
     if (!title) return;
 
-    const newTask: Task = { id: Date.now(), title, status: "todo" };
+    const newTask: Task = { id: crypto.randomUUID(), title, status: "todo" };
     setTasks((prev) => [...prev, newTask]);
     setName("");
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
