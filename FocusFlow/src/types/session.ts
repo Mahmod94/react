@@ -3,5 +3,5 @@ export type Session = {
     durationSeconds: number;
     endedAt: number;
     type: "focus" | "break";
-    taskId?: number;
+    taskId?: string;
 };

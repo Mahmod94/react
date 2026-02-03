@@ -1,27 +1,39 @@
 import { useEffect, useRef, useState } from "react";
+
+
+import type { Task } from "../types/task";
 import type { Session } from "../types/session";
 
 const PROMODORO_LENGTH = 10;
 
-const STORAGE_KEY = "focusflow.sessions";
+// const STORAGE_KEY = "focusflow.sessions";
 
-export default function PromodoroPage()
+type Props = {
+    sessions: Session[];
+    setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
+    tasks: Task[];
+
+}
+
+export default function PromodoroPage({ sessions, setSessions, tasks } : Props)
 {
     const [timeLeft, setTimeLeft] = useState<number>(PROMODORO_LENGTH);
     const [running, setIsRunning] = useState<boolean>(false);
 
-    const [sessions, setSession] = useState<Session[]>(() => {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            console.log("LOADED RAW:", raw);
-            if (!raw) return [];
-            const parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? (parsed as Session []) : [];
-        } catch (err) {
-            console.error("Failed to load sessions:", err);
-            return [];
-        }
-    });
+    const [selectedTaskId, setSelectedTaskId] = useState<string | "">("");
+
+    // const [sessions, setSession] = useState<Session[]>(() => {
+    //     try {
+    //         const raw = localStorage.getItem(STORAGE_KEY);
+    //         console.log("LOADED RAW:", raw);
+    //         if (!raw) return [];
+    //         const parsed = JSON.parse(raw);
+    //         return Array.isArray(parsed) ? (parsed as Session []) : [];
+    //     } catch (err) {
+    //         console.error("Failed to load sessions:", err);
+    //         return [];
+    //     }
+    // });
 
     // Hjälpfunktion för mm:ss
     const formatTime = (totalSeconds: number) => {
@@ -31,10 +43,10 @@ export default function PromodoroPage()
     };
 
 
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-        console.log("SAVED", sessions);
-    }, [sessions]);
+    // useEffect(() => {
+    //     // localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    //     console.log("SAVED", sessions);
+    // }, [sessions]);
 
     useEffect(() => {
         if(!running) return;
@@ -55,17 +67,18 @@ export default function PromodoroPage()
             loggedRef.current = true;
 
             setIsRunning(false);
-            setSession(prev => [
+            setSessions(prev => [
                 ...prev,
                 {
                     id: Date.now(),
                     durationSeconds: PROMODORO_LENGTH,
                     endedAt: Date.now(),
                     type: "focus",
+                    taskId: selectedTaskId || undefined,
                 },
             ]);
         }
-    }, [timeLeft, running])
+    }, [timeLeft, running, setSessions])
 
 
     const handleStartPause = () => {
@@ -81,7 +94,12 @@ export default function PromodoroPage()
     return (
         <div>
             <h1>Promodoro</h1>
-
+            <select value={selectedTaskId} onChange={(e) => setSelectedTaskId(e.target.value)}>
+                <option value="">No task</option>
+                {tasks.map(t => (
+                    <option key={t.id} value={t.id}>{t.title}</option>
+                ))}
+            </select>
             <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>
                 {formatTime(timeLeft)}
             </div>

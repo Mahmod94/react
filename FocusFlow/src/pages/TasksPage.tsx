@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
 import type { Task } from "../types/task";
 
-const STORAGE_KEY = "focusflow.tasks";
 
-export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      console.log("LOADED RAW:", raw);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as Task[]) : [];
-    } catch (err) {
-      console.error("Failed to load tasks:", err);
-      return [];
-    }
-  });
+type Props = {
+  tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+}
+
+export default function TasksPage({ tasks, setTasks} : Props) {
+  // const [tasks, setTasks] = useState<Task[]>(() => {
+  //   try {
+  //     const raw = localStorage.getItem(STORAGE_KEY);
+  //     console.log("LOADED RAW:", raw);
+  //     if (!raw) return [];
+  //     const parsed = JSON.parse(raw);
+  //     return Array.isArray(parsed) ? (parsed as Task[]) : [];
+  //   } catch (err) {
+  //     console.error("Failed to load tasks:", err);
+  //     return [];
+  //   }
+  // });
 
   const [name, setName] = useState("");
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-    console.log("SAVED", tasks);
-  }, [tasks]);
+  // useEffect(() => {
+  //   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  //   console.log("SAVED", tasks);
+  // }, [tasks]);
 
   const handleAdd = () => {
     const title = name.trim();

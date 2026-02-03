@@ -1,7 +1,7 @@
 export type TaskStatus = "todo" | "doing" | "done";
 
 export type Task = {
-    id: number;
+    id: string;
     title: string;
     status: TaskStatus;
 };
