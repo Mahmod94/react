@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Task } from "./types/task.ts";
 import type { Session } from "./types/session.ts";
 
+import { PromodoroProvider } from "./PromodoroProvider.tsx";
 import StatsPage from "./pages/StatsPage"
 import PromodoroPage from "./pages/PromodoroPage";
 import TasksPage from "./pages/TasksPage";
@@ -52,12 +53,13 @@ export default function App()
         <h1>FocusFlow</h1>
 
         <NavBar />
+        <PromodoroProvider setSessions={setSessions}>
         <Routes>
           <Route path="/" element={<TasksPage tasks={tasks} setTasks={setTasks} />} />
           <Route path="/promodoropage" element={<PromodoroPage sessions={sessions} setSessions={setSessions} tasks={tasks} />} />
-          <Route path="/statspage" element={<StatsPage sessions={sessions}/>} />
-  
+          <Route path="/statspage" element={<StatsPage sessions={sessions}/>} />  
         </Routes>
+        </PromodoroProvider>
       </div>
     </>
   );
