@@ -1,12 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { Typography } from "@mui/material";
-
+import { Button, Typography } from "@mui/material";
 import type { Task } from "../types/task";
-import type { Session } from "../types/session";
 import { usePromodoro } from "../PromodoroProvider";
-
-const PROMODORO_LENGTH = 10;
-
 
 type Props = {
     tasks: Task[];
@@ -46,8 +40,8 @@ export default function PromodoroPage({ tasks } : Props)
                 {formatTime(timeLeft)}
             </div>
 
-            <button onClick={startPause}>Start</button>
-            <button onClick={reset} style={{ marginLeft: "0.5rem" }}>Reset</button>
+            <Button onClick={startPause}>{running ? "Pause" : "Start"}</Button>
+            <Button onClick={reset}>Reset</Button>
         </div>
     );
 

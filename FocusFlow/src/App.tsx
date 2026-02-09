@@ -7,25 +7,31 @@ import TasksPage from "./pages/TasksPage";
 import PromodoroPage from "./pages/PromodoroPage";
 import StatsPage from "./pages/StatsPage";
 import { Toolbar, Typography, Box } from "@mui/material";
+import { loadTasks, saveTasks } from "./storage/tasksStorage";
 
 
-const Storage_Key = "focusfolw.tasks";
 
 export default function App() {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    try {
-      const raw = localStorage.getItem(Storage_Key);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as Task[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  // const [tasks, setTasks] = useState<Task[]>(() => {
+  //   try {
+  //     const raw = localStorage.getItem(Storage_Key);
+  //     if (!raw) return [];
+  //     const parsed = JSON.parse(raw);
+  //     return Array.isArray(parsed) ? (parsed as Task[]) : [];
+  //   } catch {
+  //     return [];
+  //   }
+  // });
+
+  // useEffect(() => {
+  //   localStorage.setItem(Storage_Key, JSON.stringify(tasks));
+  // }, [tasks]);
+
+  const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
 
   useEffect(() => {
-    localStorage.setItem(Storage_Key, JSON.stringify(tasks));
-  }, [tasks]);
+    saveTasks(tasks);
+  }, [tasks])
 
   return (
     <div>
@@ -41,7 +47,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<TasksPage tasks={tasks} setTasks={setTasks} />} />
           <Route path="/promodoropage" element={<PromodoroPage tasks={tasks} />} />
-          <Route path="/statspage" element={<StatsPage />} />
+          <Route path="/statspage" element={<StatsPage tasks={tasks} />} />
         </Routes>
       </PromodoroProvider>
     </div>
