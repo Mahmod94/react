@@ -1,39 +1,52 @@
 import { Box, AppBar, Toolbar, Stack, Typography} from "@mui/material";
 import { Link } from "react-router-dom";
 
-import { useState } from "react";
 
 export default function NavBar(){
 
-    const [ancorEl, setAncorEl] = useState<null | HTMLElement>(null);
+    const menuItem = [
+        {
+            menuName: "Focus Flow",
+            menuItems: [
+                {
+                    name: "Tasks",
+                    href: "/",
+                },
+                {
+                    name: "Promodoro",
+                    href: "/promodoropage",
+                },
+                {
+                    name: "Stats",
+                    href: "/statspage"
+                },
+            ]
+        }
+    ];
 
-
-    return (
-        <Box sx={{ flexGrow: 1}}>
-            <AppBar position="fixed" color="secondary">
-                <Toolbar variant="dense">
-                    <Stack direction="row" spacing={3}>
-                        <Link to="/" style={{ color: "inhert", textDecoration: "none"}}>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1}}>Tasks</Typography>
-                        </Link>
-
-                        <Link to="/promodoropage" style={{ color: "inherit", textDecoration:"none"}}>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1}}>
-                            Promodoro
-                            </Typography>
-                        </Link>
-
-                        <Link to="/statspage" style={{color: "inherit", textDecoration: "none"}}>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1}}>
-                            Stats
-                        </Typography>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1}}>
-                            Login
-                        </Typography>
-                        </Link>
-                    </Stack>
-                </Toolbar>
-            </AppBar>
-        </Box>
+    return(
+        <AppBar position="fixed" sx={{ backgroundColor: "#CA9CE1" }}>
+            <Toolbar>
+                <Stack direction="row" spacing={3}>
+                    {menuItem.map((menu) =>(
+                        <Stack key={menu.menuName} direction="row" spacing={2}>
+                            {menu.menuItems.map((item)=> (
+                                <Link
+                                    key={item.name}
+                                    to={item.href}
+                                    style={{ textDecoration: "none", color: "inherit" }}
+                                    >
+                                        <Typography variant="h6">
+                                            {item.name}
+                                        </Typography>
+                                </Link>
+                            ))}
+                        </Stack>
+                    ))}
+                </Stack>
+                <Box sx={{ flexGrow: 1}}></Box>
+                <Typography variant="h6">Login</Typography>
+            </Toolbar>
+        </AppBar>
     );
 }

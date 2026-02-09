@@ -1,66 +1,49 @@
+import type { Task } from "./types/task";
 import { useEffect, useState } from "react";
-
-import type { Task } from "./types/task.ts";
-import type { Session } from "./types/session.ts";
-
-import { PromodoroProvider } from "./PromodoroProvider.tsx";
-import StatsPage from "./pages/StatsPage"
-import PromodoroPage from "./pages/PromodoroPage";
-import TasksPage from "./pages/TasksPage";
+import { PromodoroProvider } from "./PromodoroProvider";
 import { Route, Routes } from "react-router-dom";
-import NavBar from "./components/NavBar.tsx";
+import NavBar from "./components/NavBar";
+import TasksPage from "./pages/TasksPage";
+import PromodoroPage from "./pages/PromodoroPage";
+import StatsPage from "./pages/StatsPage";
+import { Toolbar, Typography, Box } from "@mui/material";
 
-const SESSIONS_KEY = "focusflow.sessions";
 
-const STORAGE_KEY = "focusflow.tasks";
+const Storage_Key = "focusfolw.tasks";
 
-export default function App()
-{
-  const[sessions, setSessions] = useState<Session[]>(() => {
+export default function App() {
+  const [tasks, setTasks] = useState<Task[]>(() => {
     try {
-      const raw = localStorage.getItem(SESSIONS_KEY);
+      const raw = localStorage.getItem(Storage_Key);
       if (!raw) return [];
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as Session[]) : [];
+      return Array.isArray(parsed) ? (parsed as Task[]) : [];
     } catch {
       return [];
     }
   });
 
   useEffect(() => {
-    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
-  }, [sessions]);
+    localStorage.setItem(Storage_Key, JSON.stringify(tasks));
+  }, [tasks]);
 
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    try
-    {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as Task[]) : [];
-    }catch {
-      return [];
-    }
-  });
+  return (
+    <div>
+      <NavBar />
+      <Toolbar />
 
-  useEffect(() =>{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks])
-
-  return(
-    <>
-      <div>
-        <h1>FocusFlow</h1>
-
-        <NavBar />
-        <PromodoroProvider setSessions={setSessions}>
+      <Box textAlign="center" mt={2} mb={3}>
+        <Typography variant="h3" component="h1" color="secondary">
+          Focus Flow
+        </Typography>
+      </Box>
+      <PromodoroProvider>
         <Routes>
           <Route path="/" element={<TasksPage tasks={tasks} setTasks={setTasks} />} />
-          <Route path="/promodoropage" element={<PromodoroPage sessions={sessions} setSessions={setSessions} tasks={tasks} />} />
-          <Route path="/statspage" element={<StatsPage sessions={sessions}/>} />  
+          <Route path="/promodoropage" element={<PromodoroPage tasks={tasks} />} />
+          <Route path="/statspage" element={<StatsPage />} />
         </Routes>
-        </PromodoroProvider>
-      </div>
-    </>
+      </PromodoroProvider>
+    </div>
   );
 }

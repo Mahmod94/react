@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Task } from "../types/task";
+import { Typography } from "@mui/material";
 
 
 type Props = {
@@ -26,7 +27,7 @@ export default function TasksPage({ tasks, setTasks} : Props) {
 
   return (
     <>
-      <h1>Tasks</h1>
+      <Typography variant="h4" component="h2" sx={{ color: "#C45AB3"}}>Tasks</Typography>
       <input value={name} onChange={(e) => setName(e.target.value)} />
       <button type="button" onClick={handleAdd}>Add</button>
 
