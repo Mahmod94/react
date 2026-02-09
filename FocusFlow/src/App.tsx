@@ -12,20 +12,7 @@ import { loadTasks, saveTasks } from "./storage/tasksStorage";
 
 
 export default function App() {
-  // const [tasks, setTasks] = useState<Task[]>(() => {
-  //   try {
-  //     const raw = localStorage.getItem(Storage_Key);
-  //     if (!raw) return [];
-  //     const parsed = JSON.parse(raw);
-  //     return Array.isArray(parsed) ? (parsed as Task[]) : [];
-  //   } catch {
-  //     return [];
-  //   }
-  // });
 
-  // useEffect(() => {
-  //   localStorage.setItem(Storage_Key, JSON.stringify(tasks));
-  // }, [tasks]);
 
   const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
 

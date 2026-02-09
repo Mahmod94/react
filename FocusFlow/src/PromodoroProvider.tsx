@@ -1,8 +1,10 @@
-import { loadSessions, saveSessions } from "./storage/sessionsStorage";
 import React, { createContext, useContext, useEffect, useRef, useState} from "react";
 import type { Session } from "./types/session";
 
-const PROMODORO_LENGTH_SECONDS = 60 * 5 ;
+import { listSessions, addSession as repoAddSession, clearAllSessions } from "./data/sessionsRepo";
+
+
+const PROMODORO_LENGTH_SECONDS = 60 ;
 
 type PromodoroState = {
   timeLeft: number;
@@ -26,11 +28,7 @@ const PromodoroContext = createContext<PromodoroState | null>(null);
 export function PromodoroProvider({ children }: { children: React.ReactNode }) {
 
 
-  const [sessions, setSessions] = useState<Session[]>(() => loadSessions());
-
-  useEffect(() => {
-    saveSessions(sessions);
-  }, [sessions]);
+  const [sessions, setSessions] = useState<Session[]>(() => listSessions());
 
   const [timeLeft, setTimeLeft] = useState(PROMODORO_LENGTH_SECONDS);
   const [running, setRunning] = useState(false);
@@ -49,10 +47,14 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
   }, [running]);
 
   const addSession = (s: Session) => {
-    setSessions((prev) => [...prev, s]);
+    const next = repoAddSession(s);
+    setSessions(next);
   };
 
-  const clearSessions = () => setSessions([]);
+  const clearSessions = () => {
+    clearAllSessions();
+    setSessions([]);
+  };
 
   useEffect(() => {
     if (!running) return;
@@ -68,6 +70,7 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
         type: "focus",
         taskId: selectedTaskId || undefined,
       });
+      setTimeLeft(PROMODORO_LENGTH_SECONDS);
     }
   }, [timeLeft, running, selectedTaskId]);
 

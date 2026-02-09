@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { Button, Checkbox, TextField, Typography } from "@mui/material";
 import type { Task } from "../types/task";
+import { createTask, deleteTask, updateTask} from "../data/tasksRepo";
+
 
 type Props = {
   tasks: Task[];
@@ -17,30 +19,27 @@ export default function TasksPage({ tasks, setTasks }: Props)
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
 
+
   const handleAdd = () => {
-    const title = name.trim();
-    if (!title) return;
+  const title = name.trim();
+  if (!title) return;
+  const task = createTask(title);
+  setTasks((prev) => [...prev, task]);
+  setName("");
+};
 
-    const newTask: Task = { id: crypto.randomUUID(), title, status: "todo"};
-    setTasks((prev) => [...prev, newTask]);
-    setName("");
-  };
+const handleDelete = (id: string) => {
+  const next = deleteTask(id);
+  setTasks(next);
+};
 
-  const handleDelete = (id: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    if (editingId === id) {
-      setEditingId(null);
-      setDraftTitle("");
-    }
-  };
-
-  const toggleDone = (id: string) => {
-    setTasks((prev) => 
-      prev.map((t) =>
-        t.id === id ? {...t, status: t.status === "done" ? "todo" : "done"} : t
-      )
-    );
-  };
+const toggleDone = (id: string) => {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  const nextStatus = t.status === "done" ? "todo" : "done";
+  const next = updateTask(id, {status: nextStatus});
+  setTasks(next);
+};
 
   const startEdit = (task: Task) => {
     setEditingId(task.id);
@@ -53,10 +52,10 @@ export default function TasksPage({ tasks, setTasks }: Props)
   }
 
   const saveEdit = (id: string) => {
-    const next = draftTitle.trim();
-    if (!next) return;
-
-    setTasks((prev) => prev.map((t) => (t.id === id ? {...t, title: next } : t)));
+    const nextTitle = draftTitle.trim();
+    if (!nextTitle) return;
+    const next = updateTask(id, { title: nextTitle });
+    setTasks(next);
     setEditingId(null);
     setDraftTitle("");
   };
