@@ -6,7 +6,6 @@ import { useState } from "react";
 export default function NavBar(){
 
     const [ancorEl, setAncorEl] = useState<null | HTMLElement>(null);
-    const 
 
 
     return (
