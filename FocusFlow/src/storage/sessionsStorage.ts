@@ -1,6 +1,7 @@
 import type { Session } from "../types/session";
 
-const SESSIONS_KEY = "foxusflow.sessions";
+const SESSIONS_KEY = "focusflow.sessions";
+
 
 export function loadSessions(): Session[] {
     try {

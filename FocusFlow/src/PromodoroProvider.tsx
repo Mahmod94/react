@@ -2,7 +2,7 @@ import { loadSessions, saveSessions } from "./storage/sessionsStorage";
 import React, { createContext, useContext, useEffect, useRef, useState} from "react";
 import type { Session } from "./types/session";
 
-const PROMODORO_LENGTH_SECONDS = 25 * 60;
+const PROMODORO_LENGTH_SECONDS = 60 * 5 ;
 
 type PromodoroState = {
   timeLeft: number;

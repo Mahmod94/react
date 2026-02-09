@@ -1,5 +1,5 @@
 import { usePromodoro } from "../PromodoroProvider";
-import { Typography } from "@mui/material";
+import { List, ListItem, ListItemText, Typography } from "@mui/material";
 import { useMemo } from "react";
 import type { Task } from "../types/task.ts";
 
@@ -91,13 +91,16 @@ export default function StatsPage({ tasks }: Props) {
 {topTasks.length === 0 ? (
   <Typography variant="body2">No task-linked focus yet.</Typography>
 ) : (
-  <ol>
+  <List>
     {topTasks.map(t => (
-      <li key={t.taskId}>
-        {t.title} — {formatHM(t.seconds)}
-      </li>
+      <ListItem key={t.taskId} disablePadding>
+        <ListItemText
+          primary={t.title}
+          secondary={formatHM(t.seconds)}
+          />
+      </ListItem>
     ))}
-  </ol>
+  </List>
 )}
 
     </div>
