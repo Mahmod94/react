@@ -1,14 +1,22 @@
+/**
+ * Author: Mahmod
+ * Purpose: self development in frontend
+ */
+
 import React, { createContext, useContext, useEffect, useRef, useState} from "react";
 import type { Session } from "./types/session";
 
 import { listSessions, addSession as repoAddSession, clearAllSessions } from "./data/sessionsRepo";
 
 
-const PROMODORO_LENGTH_SECONDS = 60 ;
+const DEFAULT_PROMODORO_SECONDS = 25 * 60 ;
 
 type PromodoroState = {
   timeLeft: number;
   running: boolean;
+  
+  durationSeconds: number;
+  setDurationSeconds: (seconds: number) => void;
 
   selectedTaskId: string;
   setSelectedTaskId: (id: string) => void;
@@ -27,10 +35,11 @@ const PromodoroContext = createContext<PromodoroState | null>(null);
 
 export function PromodoroProvider({ children }: { children: React.ReactNode }) {
 
-
   const [sessions, setSessions] = useState<Session[]>(() => listSessions());
 
-  const [timeLeft, setTimeLeft] = useState(PROMODORO_LENGTH_SECONDS);
+  const [durationSeconds, setDurationSecondsState] = useState<number>(DEFAULT_PROMODORO_SECONDS);
+  const [timeLeft, setTimeLeft] = useState(DEFAULT_PROMODORO_SECONDS);
+
   const [running, setRunning] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState("");
 
@@ -65,14 +74,14 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
 
       addSession({
         id: Date.now(),
-        durationSeconds: PROMODORO_LENGTH_SECONDS,
+        durationSeconds: durationSeconds,
         endedAt: Date.now(),
         type: "focus",
         taskId: selectedTaskId || undefined,
       });
-      setTimeLeft(PROMODORO_LENGTH_SECONDS);
+      setTimeLeft(durationSeconds);
     }
-  }, [timeLeft, running, selectedTaskId]);
+  }, [timeLeft, running, selectedTaskId, durationSeconds]);
 
   const startPause = () => {
     if (!running) loggedRef.current = false;
@@ -81,7 +90,17 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
 
   const reset = () => {
     setRunning(false);
-    setTimeLeft(PROMODORO_LENGTH_SECONDS);
+    setTimeLeft(durationSeconds);
+    loggedRef.current = false;
+  };
+
+  // setter som inte låter user ändra mitt i körning (enkel och tydlig)
+  const setDurationSeconds = (seconds: number) => {
+    if (running) return;
+    const safe = Math.max (1 * 60, Math.min(seconds, 120 * 60)); // 1 - 120 min
+    
+    setDurationSecondsState(safe); // uppdatera display direkt när inte running
+    setTimeLeft(safe);
     loggedRef.current = false;
   };
 
@@ -90,6 +109,8 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
       value={{
         timeLeft,
         running,
+        durationSeconds,
+        setDurationSeconds,
         selectedTaskId,
         setSelectedTaskId,
         sessions,

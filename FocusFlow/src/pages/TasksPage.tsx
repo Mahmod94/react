@@ -1,9 +1,17 @@
 
 
 import { useMemo, useState } from "react";
-import { Button, Checkbox, TextField, Typography } from "@mui/material";
+import {  Checkbox, TextField, Typography } from "@mui/material";
 import type { Task } from "../types/task";
 import { createTask, deleteTask, updateTask} from "../data/tasksRepo";
+
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SaveIcon from '@mui/icons-material/Save';
+
 
 
 type Props = {
@@ -85,9 +93,9 @@ const toggleDone = (id: string) => {
             if (e.key === "Enter") handleAdd();
           }}
           />
-          <Button variant="contained" onClick={handleAdd}>
-            Add
-          </Button>
+          <IconButton aria-label="add" size="small" onClick={handleAdd}>
+            <AddIcon fontSize="inherit"/>
+          </IconButton>
       </div>
 
       <ul style={{ listStyle: "none", padding: 0, margin: 0}}>
@@ -138,21 +146,21 @@ const toggleDone = (id: string) => {
                   </div>
                   {isEditing ? (
                     <>
-                      <Button size="small" onClick={() => saveEdit(t.id)}>
-                        Save
-                      </Button>
-                      <Button size="small" onClick={() => cancelEdit}>
-                        Cancel
-                      </Button>
+                      <IconButton aria-label="save" size="small" onClick={() => saveEdit(t.id)}>
+                        <SaveIcon fontSize="inherit"/>
+                      </IconButton>
+                      <IconButton aria-label="cancel" size="small" onClick={() => cancelEdit}>
+                        <CancelIcon fontSize="inherit"/>
+                      </IconButton>
                     </>
                   ) : (
                     <>
-                      <Button size="small" onClick={() => startEdit(t)}>
-                        Edit
-                      </Button>
-                      <Button size="small" onClick={() => handleDelete(t.id)}>
-                        Delete
-                      </Button>
+                      <IconButton aria-label="edit" size="small" onClick={() => startEdit(t)}>
+                        <EditIcon fontSize="inherit"/>
+                      </IconButton>
+                      <IconButton aria-label="delete" size="small" onClick={() => handleDelete(t.id)}>
+                        <DeleteIcon fontSize="inherit" />
+                      </IconButton>
                     </>
                   )}
             </li>
