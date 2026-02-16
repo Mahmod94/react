@@ -9,11 +9,16 @@ import type { Session } from "./types/session";
 import { listSessions, addSession as repoAddSession, clearAllSessions } from "./data/sessionsRepo";
 
 
-const DEFAULT_PROMODORO_SECONDS = 25 * 60 ;
+const DEFAULT_FOCUS_SECONDS = 25 * 60 ;
+const DEFAULT_BREAK_SECONDS = 5 * 60;
+
+type Mode = "focus" | "break";
 
 type PromodoroState = {
   timeLeft: number;
   running: boolean;
+
+  mode: Mode;
   
   durationSeconds: number;
   setDurationSeconds: (seconds: number) => void;
@@ -37,8 +42,13 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
 
   const [sessions, setSessions] = useState<Session[]>(() => listSessions());
 
-  const [durationSeconds, setDurationSecondsState] = useState<number>(DEFAULT_PROMODORO_SECONDS);
-  const [timeLeft, setTimeLeft] = useState(DEFAULT_PROMODORO_SECONDS);
+  const [focusSeconds, setFocusSecondsState] = useState<number>(DEFAULT_FOCUS_SECONDS);
+  const [breakSeconds, setBreakSecondsState] = useState<number>(DEFAULT_BREAK_SECONDS);
+
+  const [mode, setMode] = useState<Mode>("focus");
+
+  const [durationSeconds, setDurationSecondsState] = useState<number>(DEFAULT_FOCUS_SECONDS);
+  const [timeLeft, setTimeLeft] = useState(DEFAULT_FOCUS_SECONDS);
 
   const [running, setRunning] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState("");
@@ -65,6 +75,9 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
     setSessions([]);
   };
 
+  const currentDuration = mode === "focus" ? focusSeconds : breakSeconds;
+
+  // När timern når 0 --> växla mode
   useEffect(() => {
     if (!running) return;
 
@@ -72,16 +85,26 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
       loggedRef.current = true;
       setRunning(false);
 
+    if (mode === "focus")
+    {
+      // logga endast focus
       addSession({
         id: Date.now(),
-        durationSeconds: durationSeconds,
+        durationSeconds: focusSeconds,
         endedAt: Date.now(),
         type: "focus",
         taskId: selectedTaskId || undefined,
       });
-      setTimeLeft(durationSeconds);
+    // byt till break
+    setMode("break");
+    setTimeLeft(breakSeconds);
+    } else {
+      // break klart --> tillbaka till focus
+      setMode("break");
+      setTimeLeft(breakSeconds);
     }
-  }, [timeLeft, running, selectedTaskId, durationSeconds]);
+    }
+  }, [timeLeft, running, mode, focusSeconds, breakSeconds, selectedTaskId]);
 
   const startPause = () => {
     if (!running) loggedRef.current = false;
@@ -90,8 +113,9 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
 
   const reset = () => {
     setRunning(false);
-    setTimeLeft(durationSeconds);
     loggedRef.current = false;
+    setMode("focus");
+    setTimeLeft(durationSeconds);
   };
 
   // setter som inte låter user ändra mitt i körning (enkel och tydlig)
