@@ -118,6 +118,20 @@ export function PromodoroProvider({ children }: { children: React.ReactNode }) {
     setTimeLeft(durationSeconds);
   };
 
+  const skip = () => {
+    // hoppa direkt till nästa läge
+    setRunning(false);
+    loggedRef.current = false;
+
+    if (mode === "focus") {
+      setMode("break");
+      setTimeLeft(breakSeconds);
+    } else {
+      setMode("focus");
+      setTimeLeft(focusSeconds);
+    }
+  };
+
   // setter som inte låter user ändra mitt i körning (enkel och tydlig)
   const setDurationSeconds = (seconds: number) => {
     if (running) return;
