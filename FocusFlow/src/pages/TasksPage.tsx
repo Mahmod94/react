@@ -1,16 +1,29 @@
+import React, {useMemo, useState} from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  Checkbox,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
+  Stack,
+  TextField,
+  Typography  
+} from "@mui/material"
 
-
-import { useMemo, useState } from "react";
-import {  Checkbox, TextField, Typography } from "@mui/material";
 import type { Task } from "../types/task";
-import { createTask, deleteTask, updateTask} from "../data/tasksRepo";
+import { createTask, deleteTask, updateTask } from "../data/tasksRepo";
 
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
-import CancelIcon from '@mui/icons-material/Cancel';
-import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import CancelIcon from "@mui/icons-material/Cancel";
+import SaveIcon from "@mui/icons-material/Save";
+
 
 
 
@@ -73,101 +86,134 @@ const toggleDone = (id: string) => {
     [tasks]
   );
 
+  const isEditing = (id: string) => editingId === id;
+
   return(
-    <div>
-      <Typography variant="h4" component="h2" gutterBottom sx={{ color: "#C45AB3"}}>
+    <Box sx={{ maxWidth: 720, mx: "auto", mt: 4, px: 2}}>
+      <Typography variant="h4" component="h2" sx={{ mb: 1, fontWeight: 700}}>
         Tasks
       </Typography>
 
-      <Typography variant="body2" sx={{ mb: 2}}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb : 2 }}>
         Done: {doneCount}/{tasks.length}
-      </Typography>
+        </Typography>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 16}}>
-        <TextField
-          size="small"
-          label="New task"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleAdd();
-          }}
-          />
-          <IconButton aria-label="add" size="small" onClick={handleAdd}>
-            <AddIcon fontSize="inherit"/>
-          </IconButton>
-      </div>
+        <Card>
+          <CardContent>
+            {/* Add row */}
+            <Stack direction="row" spacing={1} sx={{ mb : 2 }}>
+              <TextField
+                size="small"
+                label="New Task"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAdd();
+                }}
+                fullWidth
+                />
+                <IconButton aria-label="add" onClick={handleAdd}>
+                  <AddIcon />
+                </IconButton>
+            </Stack>
 
-      <ul style={{ listStyle: "none", padding: 0, margin: 0}}>
-        {tasks.map((t) => {
-          const isEditing = editingId === t.id;
-          const isDone = t.status === "done";
+            <Divider sx={{ mb : 1 }}/>
 
-          return(
-            <li
-              key={t.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "8px 0",
-                borderBottom: "1px solid rgba(0,0,0,0.08)",
-              }}
-              >
-                <Checkbox
-                  checked={isDone}
-                  onChange={() => toggleDone(t.id)}
-                  inputProps={{ "aria-label": "toggle done"}}
-                  />
+            {/* List */}
+            <List disablePadding>
+              {tasks.map((t, idx) => {
+                const editing = isEditing(t.id);
+                const done = t.status === "done";
+                
+                return (
+                  <React.Fragment key={t.id}>
+                    <ListItem
+                      disableGutters
+                      sx={{
+                        py: 1,
+                        alignItems: "center",
+                      }}
+                      >
+                        <Checkbox
+                          checked={done}
+                          onChange={() => toggleDone(t.id)}
+                          inputProps={{ "aria-label": "toggle done"}}
+                          sx={{ mr: 1 }}
+                          />
 
-                  <div style={{ flex: 1}}>
-                    {isEditing ? (
-                      <TextField
-                        size="small"
-                        value={draftTitle}
-                        onChange={(e) => setDraftTitle(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") saveEdit(t.id);
-                          if (e.key === "Escape") cancelEdit();
-                        }}
-                        autoFocus
-                        fullWidth
-                        />
-                      ): (
-                        <span
-                          style={{
-                            textDecoration: isDone ? "line-through" : "none",
-                            opacity: isDone ? +.6: 1,
-                          }}
-                          >
-                            {t.title}
-                          </span>
-                    )}
-                  </div>
-                  {isEditing ? (
-                    <>
-                      <IconButton aria-label="save" size="small" onClick={() => saveEdit(t.id)}>
-                        <SaveIcon fontSize="inherit"/>
-                      </IconButton>
-                      <IconButton aria-label="cancel" size="small" onClick={() => cancelEdit}>
-                        <CancelIcon fontSize="inherit"/>
-                      </IconButton>
-                    </>
-                  ) : (
-                    <>
-                      <IconButton aria-label="edit" size="small" onClick={() => startEdit(t)}>
-                        <EditIcon fontSize="inherit"/>
-                      </IconButton>
-                      <IconButton aria-label="delete" size="small" onClick={() => handleDelete(t.id)}>
-                        <DeleteIcon fontSize="inherit" />
-                      </IconButton>
-                    </>
-                  )}
-            </li>
-          )
-        })}
-      </ul>
+                          {/* Content */}
+                          {editing ? (
+                            <TextField
+                              size="small"
+                              value={draftTitle}
+                              onChange={(e) => setDraftTitle(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") saveEdit(t.id);
+                                if (e.key === "Escape") cancelEdit();
+                              }}
+                              autoFocus
+                              fullWidth
+                              />
+                          ) : (
+                            <ListItemText
+                              primary={t.title}
+                              primaryTypographyProps={{
+                                sx: {
+                                  textDecoration: done ? "line-through" : "none",
+                                  opacity: done ? 0.6: 1,
+                                  fontWeight: 500,
+                                },
+                              }}
+                              />
+                          )}
 
-    </div>
+                          {/* Actions */}
+                          <ListItemSecondaryAction>
+                            {editing ? (
+                              <Stack direction="row" spacing={0.5}>
+                                <IconButton
+                                  aria-label="save"
+                                  size="small"
+                                  onClick={() => saveEdit(t.id)}
+                                  >
+                                    <SaveIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton
+                                    aria-label="cancel"
+                                    size="small"
+                                    onClick={cancelEdit}
+                                    >
+                                      <CancelIcon fontSize="small" />
+                                    </IconButton>
+                              </Stack>
+                            ) : (
+                              <Stack direction="row" spacing={0.5}>
+                                <IconButton
+                                  aria-label="edit"
+                                  size="small"
+                                  onClick={() => startEdit(t)}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton
+                                    aria-label="delete"
+                                    size="small"
+                                    onClick={() => handleDelete(t.id)}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                              </Stack>
+                            )}
+                          </ListItemSecondaryAction>
+                      </ListItem>
+
+                      {idx < tasks.length - 1 && <Divider />}
+                  </React.Fragment>
+                )
+              })}
+            </List>
+          </CardContent>
+        </Card>
+    </Box>
   );
 }
