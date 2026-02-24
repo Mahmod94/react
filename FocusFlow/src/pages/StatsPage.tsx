@@ -8,7 +8,9 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+
 import type { Task } from "../types/task";
+
 import {
   ResponsiveContainer,
   LineChart,
@@ -56,7 +58,6 @@ export default function StatsPage({ tasks }: Props) {
     return rows.slice(0, 5);
   }, [sessions, titleById]);
 
-  // 2) Focus per dag (senaste 7 dagar)
   const focusLast7Days = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -75,7 +76,7 @@ export default function StatsPage({ tasks }: Props) {
     }
 
     return days.map((k) => ({
-      day: k.slice(5), // "MM-DD" för kompakt X-axis
+      day: k.slice(5),
       minutes: toMinutes(focusByDay.get(k) ?? 0),
     }));
   }, [sessions]);
@@ -107,7 +108,6 @@ export default function StatsPage({ tasks }: Props) {
           </CardContent>
         </Card>
 
-        {/* Top tasks */}
         <Card>
           <CardContent>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
